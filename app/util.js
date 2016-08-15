@@ -2,10 +2,13 @@
 /**
  * util
  *
- * A event emmiter, serves as the bridge between view and controller
+ * An event emmiter, serves as the bridge between view and controller
  */
 
-var emitter = (function() {
+var util = {};
+
+
+util.emitter = (function() {
     var listeners = {};
 
     return {
@@ -37,7 +40,6 @@ var emitter = (function() {
         },
 
         emit: function(event) {
-        	 console.log("emit" + event, listeners)
             event = '$' + event
             let cbs = listeners[event]
             if (cbs) {
@@ -53,4 +55,4 @@ var emitter = (function() {
 
 })();
 
-module.exports = emitter
+module.exports = util

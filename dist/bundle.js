@@ -54,14 +54,13 @@
 	/**
 	 * Bootstrap
 	 */
-	var view = __webpack_require__(2);
-	var controller = __webpack_require__(3);
-	var emitter = __webpack_require__(4);
+	const DOMView = __webpack_require__(2);
+	const controller = __webpack_require__(3);
+	const util = __webpack_require__(4);
 
 	function init(config) {
-			view.emitter = emitter;
-	    controller.emitter = emitter;
-	    view.init(config.root, config.row, config.width);
+	    controller.emitter = util.emitter;
+	    const domView = new DOMView(config.root, config.row, config.width, util.emitter);
 	    controller.init(config.row);
 	}
 
@@ -76,106 +75,91 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/**
+	 * DOM implementation of the View
+	 */
 	'use strict'
-	var controller = __webpack_require__(3);
-
-	var view = {
-		row: 20,
-		width: 30,
-		playFlag:false
-	};
+	const controller = __webpack_require__(3);
+	const View = __webpack_require__(5);
 
 	/**
 	 * helper function
 	 */
-	var makeSquare = function() {
-		var div = document.createElement("div");
-		div.className = "square";
-		return div;
+	const makeSquare = function() {
+	    let div = document.createElement("div");
+	    div.className = "square";
+	    return div;
 	}
 
-	var makeDot = function(row, col, width) {
-		var div = document.createElement("div");
-		div.className = "dot";
-		div.style.position = "absolute";
-		div.style.left = row*width - 15 + "px" 
-		div.style.top = col*width - 15 + "px";
-		div.dataset.row = row;
-		div.dataset.col = col;
-		return div;
-	}
-
-
-	/**
-	 * view method
-	 */
-
-	view.init = function (root, row, width) {
-		this.root = root;
-		this.row = row || this.row;
-		this.width = width || this.width;
-		this.initAddChess();
-		this.emitter.on("viewAddChess", this.renderChess)
-		this.render();
-	}
-
-	view.initAddChess = function() {
-		document.querySelector(".main").addEventListener("click", () => {
-			if (event.target.className === "dot") {
-				console.log("click")
-				this.emitter.emit("addChess", event.target.dataset.row, event.target.dataset.col, this.playerFlag);
-			}
-		})
+	const makeDot = function(row, col, width) {
+	    let div = document.createElement("div");
+	    div.className = "dot";
+	    div.style.position = "absolute";
+	    div.style.left = row * width - 15 + "px"
+	    div.style.top = col * width - 15 + "px";
+	    div.dataset.row = row;
+	    div.dataset.col = col;
+	    return div;
 	}
 
 
-	/**
-	 * render logic
-	 */
+	class DOMView extends View {
+			/**
+			 * implement add chesscallback
+			 */
+	    initAddChess() {
+	        document.querySelector(".main").addEventListener("click", () => {
+	            if (event.target.className === "dot") {
+	                super.initAddChess(event.target.dataset.row - 0, event.target.dataset.col - 0, this.playerFlag);
+	            }
+	        })
+	    }
 
-	view.renderChess = function(row, col) {
-		console.log("render!!")
-		var chess = document.createElement("div");
-		chess.className = "chess";
-		chess.style.position = "absolute";
-		chess.style.left = row*(view.width) -20 + "px";
-		chess.style.top = col*(view.width) - 20 + "px";
-		if (view.playerFlag) {
-			chess.className += " chess-opposite";	
-		}
-		view.playerFlag = !view.playerFlag
-		document.querySelector(".main").appendChild(chess);
-		
+	    /**
+	     * implement render logic
+	     */
+	    renderChess(row, col) {
+	        let chess = document.createElement("div");
+	        chess.className = "chess";
+	        chess.style.position = "absolute";
+	        chess.style.left = row * (this.width) - 20 + "px";
+	        chess.style.top = col * (this.width) - 20 + "px";
+	        if (this.playerFlag) {
+	            chess.className += " chess-opposite";
+	        }
+	        this.playerFlag = !this.playerFlag
+	        document.querySelector(".main").appendChild(chess);
+	    }
+
+	    renderChessBoard() {
+	        let row;
+	        let fragment = document.createDocumentFragment();
+
+	        for (let i = 0; i < this.row; i++) {
+	            row = document.createElement("div");
+	            row.className = "row";
+	            for (let i = 0; i < this.row; i++) {
+	                row.appendChild(makeSquare())
+	            }
+	            fragment.appendChild(row);
+	        }
+
+	        for (let i = 1; i < this.row; i++) {
+	            for (let j = 1; j < this.row; j++) {
+	                fragment.appendChild(makeDot(i, j, this.width));
+	            }
+	        }
+	        document.querySelector(this.root).appendChild(fragment);
+	    }
+	    reset() {
+	    	const parent = document.querySelector(this.root);
+	    	Array.from(document.querySelectorAll(".chess")).map( (node) => { parent.removeChild(node)} )
+	    }
+
 	}
 
-	view.render = function () {
-		var i;
-		var j;
-		var row;
-		var fragment = document.createDocumentFragment();
+	module.exports = DOMView
 
-		for (i=0;i<this.row;i++) {
-			row = document.createElement("div");
-			row.className = "row";
-			for (j=0;j<this.row;j++) {
-				row.appendChild(makeSquare())
-			}
-			fragment.appendChild(row);
-		}
-
-		for (i=1;i<this.row;i++) {
-			for (j=1;j<this.row;j++) {
-				fragment.appendChild(makeDot(i, j, this.width));
-			}
-		}
-		document.querySelector(this.root).appendChild(fragment);
-	}
-
-	/**
-	 * register event callback
-	 */
-
-	module.exports = view
 
 /***/ },
 /* 3 */
@@ -183,45 +167,103 @@
 
 	'use strict'
 	/**
-	 * Controller
+	 * Controller, Singleton
 	 */
-
-	var controller = {
+	let Controller = {
 	    row: 20,
 	    model: []
 	};
 
-	controller.init = function(row) {
+	/**
+	 * higher-order function to warp scanner
+	 */
+	const scannerMaker = function(scaner) {
+	    return function(x, y, count, playerFlag, continueFlag) {
+	        if (continueFlag) {
+	            if (Controller.model[x][y] == playerFlag) {
+	                count += 1;
+	                if (count === 5) {
+	                    Controller.win = true;
+	                } else {
+	                    scaner(x, y, count, playerFlag, continueFlag);
+	                }
+	            } else {
+	                return false;
+	            }
+	        } else {
+	            if (Controller.model[x][y] == playerFlag) {
+	                count += 1;
+	                continueFlag = true;
+	                scaner(x, y, count, playerFlag, continueFlag);
+	            } else {
+	                scaner(x, y, count, playerFlag, continueFlag);
+	            }
+	        }
+	    }
+	}
+
+	// make scaner using function composition
+	const scanX = scannerMaker(function(x, y, count, playerFlag, continueFlag) {
+	    scanX(x + 1, y, count, playerFlag, continueFlag)
+	});
+	const scanY = scannerMaker(function(x, y, count, playerFlag, continueFlag) {
+	    scanY(x, y + 1, count, playerFlag, continueFlag)
+	});
+	const scanXY = scannerMaker(function(x, y, count, playerFlag, continueFlag) {
+	    scanXY(x + 1, y + 1, count, playerFlag, continueFlag)
+	});
+	const scanYX = scannerMaker(function(x, y, count, playerFlag, continueFlag) {
+	    scanYX(x + 1, y - 1, count, playerFlag, continueFlag)
+	});
+
+	Controller.init = function(row) {
 	    this.row = row || this.row;
-	    this.model = Array.from(Array(this.row-1)).map(() => Array.from(Array(this.row-1)));
-	    /**
-	     * register event
-	     */
-	    this.emitter.on("addChess", this.onAddChess);
+	    this.model = Array.from(Array(this.row + 7)).map(() => Array.from(Array(this.row + 7)));
+	    // register event
+	    this.emitter.on("addChess", this.onAddChess.bind(this));
 	};
 
-	controller.isWin = function() {
+	Controller.isWin = function(row, col, flag) {
+	    // scan recursively 
+	    scanX(row - 4, col, 0, flag, false);
+	    scanY(row, col - 4, 0, flag, false);
+	    scanXY(row - 4, col - 4, 0, flag, false);
+	    scanYX(row - 4, col + 4, 0, flag, false)
+	    if (Controller.win) {
+	    		Controller.win = false;
+	        return true;
+	    } else {
+	        return false;
+	    }
+	}
 
+	Controller.reset = function() {
+		this.model = Array.from(Array(this.row + 7)).map(() => Array.from(Array(this.row + 7)));
 	}
 
 	/**
 	 * event callback
 	 */
-	controller.onAddChess = function(row, col, flag) {
-		console.log("view add chess!!")
-	    if (!controller.model[row][col]) {
-	    		controller.model[row][col] = Number(flag)
-	        controller.emitter.emit("viewAddChess", row, col)
-	        // judge if player wins
-	        if (false) {
-	            controller.emitter.emit("gameOver", 0)
+	Controller.onAddChess = function(row, col, flag) {
+	    if (!this.model[row + 4][col + 4]) {
+	        this.model[row + 4][col + 4] = Number(flag)
+	        this.emitter.emit("viewAddChess", row, col)
+	         // judge if player wins
+	        if (this.isWin(row + 4, col + 4, flag)) {
+	            if (flag) {
+	                alert("White wins!")
+	            } else {
+	                alert("Black wins!")
+	            }
+	            this.reset();
+	            this.emitter.emit("reset")
 	        }
 	        return;
 	    }
 	    return false;
 	}
 
-	module.exports = controller;
+	module.exports = Controller;
 
 
 /***/ },
@@ -232,10 +274,13 @@
 	/**
 	 * util
 	 *
-	 * A event emmiter, serves as the bridge between view and controller
+	 * An event emmiter, serves as the bridge between view and controller
 	 */
 
-	var emitter = (function() {
+	var util = {};
+
+
+	util.emitter = (function() {
 	    var listeners = {};
 
 	    return {
@@ -267,7 +312,6 @@
 	        },
 
 	        emit: function(event) {
-	        	 console.log("emit" + event, listeners)
 	            event = '$' + event
 	            let cbs = listeners[event]
 	            if (cbs) {
@@ -283,7 +327,39 @@
 
 	})();
 
-	module.exports = emitter
+	module.exports = util
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	/**
+	 * Generic View Class
+	 */
+	'use strict'
+
+	class View {
+	    constructor(root, row, width, emitter) {
+	    		this.emitter = emitter;
+	        this.row = row || 20;
+	        this.width = width || 30;
+	        this.root = root;
+	        this.playerFlag = false;
+	        this.initAddChess();
+	        this.emitter.on("viewAddChess", this.renderChess.bind(this))
+	        this.emitter.on("reset", this.reset.bind(this))
+	        this.renderChessBoard();
+	    }
+	    reset () {}
+	    initAddChess(row, col, playerFlag) {
+	    	this.emitter.emit("addChess", row, col, playerFlag);
+	    }
+	    renderChess() {}
+	    renderChessBoard() {}
+	}
+
+	module.exports = View;
 
 
 /***/ }

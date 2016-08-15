@@ -1,14 +1,13 @@
 /**
  * Bootstrap
  */
-var view = require("./view");
-var controller = require("./controller");
-var emitter = require("./util");
+const DOMView = require("./DOMView");
+const controller = require("./controller");
+const util = require("./util");
 
 function init(config) {
-		view.emitter = emitter;
-    controller.emitter = emitter;
-    view.init(config.root, config.row, config.width);
+    controller.emitter = util.emitter;
+    const domView = new DOMView(config.root, config.row, config.width, util.emitter);
     controller.init(config.row);
 }
 
