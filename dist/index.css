@@ -1,0 +1,60 @@
+/**
+ * reset
+ */
+
+ body {
+ 	margin:0;
+ 	font-size: 0;
+ }
+
+ /**
+  * app style
+  */
+ 
+.main{
+	width: 600px;
+	margin-left: auto;
+	margin-right:auto;
+	border-left:1px solid #000;
+	border-bottom:1px solid #000;
+	position:relative;
+	background-color: #DAB694;
+}
+
+.row {
+
+}
+
+.dot{
+	padding: 10px;
+	width: 10px;
+	height: 10px;
+	background-color: #000;
+	border-radius:50%;
+	cursor: pointer;
+	z-index: 1;
+	background-clip: content-box;
+}
+
+ .square {
+		width:60px;
+		height:60px;
+		box-sizing: border-box;
+		display:inline-block;
+		vertical-align: top;
+		border:1px solid #000;
+		border-left: none;
+		border-bottom: none;
+ }
+
+ .chess {
+	width: 40px;
+	height: 40px;
+	background-color: #000;
+	border-radius: 50%;
+	z-index: 2;
+ }
+
+ .chess-opposite{
+	background-color: #fff;
+ }

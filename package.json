@@ -1,0 +1,22 @@
+{
+  "name": "gobang",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zxc0328/gobang.git"
+  },
+  "author": "zindex",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zxc0328/gobang/issues"
+  },
+  "homepage": "https://github.com/zxc0328/gobang#readme",
+  "devDependencies": {
+    "webpack": "^1.13.1"
+  }
+}
