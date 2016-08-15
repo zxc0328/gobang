@@ -24,6 +24,8 @@ void renderChess(row:Number, col:Number)
 void renderChessBoard()
 void initAddChess()
 void reset()
+void gameOver(Bool:flag)
+void initUI()
 ````
 
 其中`initAddChess`方法需要调用 `super.initAddChess`：
@@ -32,6 +34,8 @@ void reset()
 // row是行数，col是列数，playerFlag是玩家标识
 void initAddChess(row:Number, col:Number, Bool:playerFlag)
 ```
+
+`initUI`需要调用`super.initUI`
 
 ### 技术细节
 
