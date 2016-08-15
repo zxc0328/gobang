@@ -17,7 +17,7 @@ npm run watch
 
 ### 多种View实现
 
-如要实现Canvas渲染版本，新建CanvasView.js，继承`View.js`中的`View`类，实现`renderChess`，`renderChessBoard`和`initAddChess`三个方法。函数原型如下：
+如要实现Canvas渲染版本，新建CanvasView.js，继承`View.js`中的`View`类，实现`initUI`，`gameOver`，`reset`，`renderChess`，`renderChessBoard`和`initAddChess`方法。函数原型如下：
 
 ````
 void renderChess(row:Number, col:Number) 
