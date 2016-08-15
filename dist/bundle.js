@@ -56,7 +56,7 @@
 	 */
 	const DOMView = __webpack_require__(2);
 	const controller = __webpack_require__(3);
-	const util = __webpack_require__(4);
+	const util = __webpack_require__(5);
 
 	function init(config) {
 	    controller.emitter = util.emitter;
@@ -80,7 +80,7 @@
 	 */
 	'use strict'
 	const controller = __webpack_require__(3);
-	const View = __webpack_require__(5);
+	const View = __webpack_require__(4);
 
 	/**
 	 * helper function
@@ -104,12 +104,29 @@
 
 
 	class DOMView extends View {
-			/**
-			 * implement add chesscallback
-			 */
+
+	    initUI() {
+	        const button = document.querySelector(".button");
+	        button.addEventListener("click", this.reset.bind(this));
+	    }
+	    
+	    gameOver(flag) {
+	        const text = document.querySelector(".message .text");
+	        this.gameOverFlag = true;
+	        if (flag) {
+	            text.innerHTML = "White Wins";
+	        } else {
+	            text.innerHTML = "Black Wins";
+	        }
+
+	    }
+
+	    /**
+	     * implement add chesscallback
+	     */
 	    initAddChess() {
 	        document.querySelector(".main").addEventListener("click", () => {
-	            if (event.target.className === "dot") {
+	            if (event.target.className === "dot" && !this.gameOverFlag) {
 	                super.initAddChess(event.target.dataset.row - 0, event.target.dataset.col - 0, this.playerFlag);
 	            }
 	        })
@@ -151,9 +168,13 @@
 	        }
 	        document.querySelector(this.root).appendChild(fragment);
 	    }
-	    reset() {
-	    	const parent = document.querySelector(this.root);
-	    	Array.from(document.querySelectorAll(".chess")).map( (node) => { parent.removeChild(node)} )
+	    reset(flag) {
+	        super.reset();
+	        document.querySelector(".message .text").innerHTML = "";
+	        const parent = document.querySelector(this.root);
+	        Array.from(document.querySelectorAll(".chess")).map((node) => {
+	            parent.removeChild(node)
+	        })
 	    }
 
 	}
@@ -221,6 +242,7 @@
 	    this.model = Array.from(Array(this.row + 7)).map(() => Array.from(Array(this.row + 7)));
 	    // register event
 	    this.emitter.on("addChess", this.onAddChess.bind(this));
+	    this.emitter.on("resetModel", this.reset.bind(this));
 	};
 
 	Controller.isWin = function(row, col, flag) {
@@ -250,13 +272,7 @@
 	        this.emitter.emit("viewAddChess", row, col)
 	         // judge if player wins
 	        if (this.isWin(row + 4, col + 4, flag)) {
-	            if (flag) {
-	                alert("White wins!")
-	            } else {
-	                alert("Black wins!")
-	            }
-	            this.reset();
-	            this.emitter.emit("reset")
+	            this.emitter.emit("gameOver", flag)
 	        }
 	        return;
 	    }
@@ -268,6 +284,47 @@
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	/**
+	 * Generic View Class
+	 */
+	'use strict'
+
+	class View {
+	    constructor(root, row, width, emitter) {
+	    		this.emitter = emitter;
+	        this.row = row || 20;
+	        this.width = width || 30;
+	        this.root = root;
+	        this.gameOverFlag = false;
+	        this.playerFlag = false;
+	        this.initAddChess();
+	        this.initUI();
+	        this.emitter.on("viewAddChess", this.renderChess.bind(this))
+	        this.emitter.on("gameOver", this.gameOver.bind(this))
+	        this.emitter.on("resetView", this.reset.bind(this))
+	        this.renderChessBoard();
+	    }
+	    gameOver() {}
+	    initUI() {}
+	    reset () {
+	    	this.gameOverFlag = false;
+	       this.playerFlag = false;
+	    	this.emitter.emit("resetModel");
+	    }
+	    initAddChess(row, col, playerFlag) {
+	    	this.emitter.emit("addChess", row, col, playerFlag);
+	    }
+	    renderChess() {}
+	    renderChessBoard() {}
+	}
+
+	module.exports = View;
+
+
+/***/ },
+/* 5 */
 /***/ function(module, exports) {
 
 	"use strict"
@@ -328,38 +385,6 @@
 	})();
 
 	module.exports = util
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	/**
-	 * Generic View Class
-	 */
-	'use strict'
-
-	class View {
-	    constructor(root, row, width, emitter) {
-	    		this.emitter = emitter;
-	        this.row = row || 20;
-	        this.width = width || 30;
-	        this.root = root;
-	        this.playerFlag = false;
-	        this.initAddChess();
-	        this.emitter.on("viewAddChess", this.renderChess.bind(this))
-	        this.emitter.on("reset", this.reset.bind(this))
-	        this.renderChessBoard();
-	    }
-	    reset () {}
-	    initAddChess(row, col, playerFlag) {
-	    	this.emitter.emit("addChess", row, col, playerFlag);
-	    }
-	    renderChess() {}
-	    renderChessBoard() {}
-	}
-
-	module.exports = View;
 
 
 /***/ }

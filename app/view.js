@@ -9,13 +9,22 @@ class View {
         this.row = row || 20;
         this.width = width || 30;
         this.root = root;
+        this.gameOverFlag = false;
         this.playerFlag = false;
         this.initAddChess();
+        this.initUI();
         this.emitter.on("viewAddChess", this.renderChess.bind(this))
-        this.emitter.on("reset", this.reset.bind(this))
+        this.emitter.on("gameOver", this.gameOver.bind(this))
+        this.emitter.on("resetView", this.reset.bind(this))
         this.renderChessBoard();
     }
-    reset () {}
+    gameOver() {}
+    initUI() {}
+    reset () {
+    	this.gameOverFlag = false;
+       this.playerFlag = false;
+    	this.emitter.emit("resetModel");
+    }
     initAddChess(row, col, playerFlag) {
     	this.emitter.emit("addChess", row, col, playerFlag);
     }

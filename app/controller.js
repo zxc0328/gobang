@@ -54,6 +54,7 @@ Controller.init = function(row) {
     this.model = Array.from(Array(this.row + 7)).map(() => Array.from(Array(this.row + 7)));
     // register event
     this.emitter.on("addChess", this.onAddChess.bind(this));
+    this.emitter.on("resetModel", this.reset.bind(this));
 };
 
 Controller.isWin = function(row, col, flag) {
@@ -83,13 +84,7 @@ Controller.onAddChess = function(row, col, flag) {
         this.emitter.emit("viewAddChess", row, col)
          // judge if player wins
         if (this.isWin(row + 4, col + 4, flag)) {
-            if (flag) {
-                alert("White wins!")
-            } else {
-                alert("Black wins!")
-            }
-            this.reset();
-            this.emitter.emit("reset")
+            this.emitter.emit("gameOver", flag)
         }
         return;
     }

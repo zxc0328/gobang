@@ -10,6 +10,17 @@
  /**
   * app style
   */
+ .message{
+ 	height: 30px;
+ 	text-align: center;
+ 	line-height: 30px;
+ 	font-size: 20px;
+ }
+
+.message .text, .message .button {
+	display: inline-block;
+	vertical-align: middle;
+}
  
 .main{
 	width: 600px;

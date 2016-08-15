@@ -27,12 +27,29 @@ const makeDot = function(row, col, width) {
 
 
 class DOMView extends View {
-		/**
-		 * implement add chesscallback
-		 */
+
+    initUI() {
+        const button = document.querySelector(".button");
+        button.addEventListener("click", this.reset.bind(this));
+    }
+    
+    gameOver(flag) {
+        const text = document.querySelector(".message .text");
+        this.gameOverFlag = true;
+        if (flag) {
+            text.innerHTML = "White Wins";
+        } else {
+            text.innerHTML = "Black Wins";
+        }
+
+    }
+
+    /**
+     * implement add chesscallback
+     */
     initAddChess() {
         document.querySelector(".main").addEventListener("click", () => {
-            if (event.target.className === "dot") {
+            if (event.target.className === "dot" && !this.gameOverFlag) {
                 super.initAddChess(event.target.dataset.row - 0, event.target.dataset.col - 0, this.playerFlag);
             }
         })
@@ -74,9 +91,13 @@ class DOMView extends View {
         }
         document.querySelector(this.root).appendChild(fragment);
     }
-    reset() {
-    	const parent = document.querySelector(this.root);
-    	Array.from(document.querySelectorAll(".chess")).map( (node) => { parent.removeChild(node)} )
+    reset(flag) {
+        super.reset();
+        document.querySelector(".message .text").innerHTML = "";
+        const parent = document.querySelector(this.root);
+        Array.from(document.querySelectorAll(".chess")).map((node) => {
+            parent.removeChild(node)
+        })
     }
 
 }
